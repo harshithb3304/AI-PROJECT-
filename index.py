@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+from collections import deque
 
 sudoku_puzzle = [
     [0, 7, 0, 0, 2, 0, 0, 4, 6],
@@ -12,6 +13,7 @@ sudoku_puzzle = [
     [0, 5, 8, 0, 0, 0, 0, 6, 0],
     [4, 3, 0, 0, 8, 0, 0, 7, 0]
 ]
+
 
 sudoku_puzzle = np.array(sudoku_puzzle)
 
@@ -112,13 +114,52 @@ def count_zeros(sudoku_puzzle):
     num_zeros = np.count_nonzero(sudoku_puzzle == 0)
     return num_zeros
 
+
+def dfs1(sudoku_puzzle):
+    opened = []
+    closed = set()
+    paths = {}  # Dictionary to store paths]
+    count = 0
+
+    opened.append(sudoku_puzzle)
+
+    while opened:
+        print(count)
+        count+=1
+        current_state = opened.pop(0)
+        current_state_tuple = tuple(map(tuple, current_state))  # Convert to tuple
+        closed.add(current_state_tuple)
+
+        if count_zeros(current_state) == 0:
+            # Construct path from the root to the solution
+            path = [current_state]
+            while current_state_tuple in paths:
+                current_state_tuple = paths[current_state_tuple]
+                path.insert(0, current_state_tuple)
+            return path
+
+        target = heuristic(current_state)
+        next_states = gen_next_state(target, current_state)
+        
+        for next_state in next_states:
+            next_state_tuple = tuple(map(tuple, next_state))  # Convert to tuple
+            if next_state_tuple not in closed:
+                paths[next_state_tuple] = current_state_tuple
+                opened.append(next_state)
+
+    return "No solution found"
+
+
+
+
+
 def dfs(sudoku_puzzle):
     opened = []
     closed = []
 
     opened.append(sudoku_puzzle)
     count = 0
-    while opened:
+    while  opened:
         print(count) if count%100 == 0 else None
         count += 1
         current_state = opened.pop(0)
@@ -133,6 +174,44 @@ def dfs(sudoku_puzzle):
             if not any(np.array_equal(next_state, state) for state in closed):
                 opened.append(next_state)
     return "No solution found"
+    
 
-sudoku_puzzle = dfs(sudoku_puzzle)
-print(sudoku_puzzle, sep = '\n')
+
+def dfs2(sudoku_puzzle):
+    opened = []
+    closed = set()
+
+    opened.append(sudoku_puzzle)
+    count = 0
+    while opened:
+        current_state = opened.pop()
+        count += 1
+
+        if count_zeros(current_state) == 0:
+            print("Number of iterations:", count)
+            return current_state
+
+        closed.add(tuple(map(tuple, current_state)))
+
+        target = heuristic(current_state)
+        next_states = gen_next_state(target, current_state)
+
+        for next_state in next_states:
+            next_state_tuple = tuple(map(tuple, next_state))
+            if next_state_tuple not in closed:
+                opened.append(next_state)
+
+    return "No solution found"
+
+solution_path = dfs2(sudoku_puzzle)
+print(solution_path, sep='\n')
+# if solution_path != "No solution found":
+#     print("Optimal Path Taken by DFS:")
+#     for i, state in enumerate(solution_path):
+#         print(f"Step {i+1}:")
+#         print(state)
+#         print()
+# else:
+#     print("No solution found")
+
+
