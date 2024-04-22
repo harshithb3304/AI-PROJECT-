@@ -1,1 +1,0 @@
-print(count) if count%100 == 0 else None
