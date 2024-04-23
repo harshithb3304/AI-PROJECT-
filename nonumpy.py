@@ -82,12 +82,11 @@ def dfs(sudoku_puzzle):
     while opened:
         current_state = opened.pop()
         count+=1
-        # print(count)
         current_state_tuple = tuple(map(tuple, current_state))
         closed.add(current_state_tuple)
 
         if count_zeros(current_state) == 0:
-            print(count)
+            print("Totol number of iterations : ", count)
             return current_state
 
         target = heuristic(current_state)
@@ -115,5 +114,6 @@ sudoku_puzzle = np.array([
 ]
 )
 
+print("Number of empty spaces : ", count_zeros(sudoku_puzzle))
 solution_path = dfs(sudoku_puzzle)
 print(solution_path)
